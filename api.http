@@ -1,0 +1,65 @@
+### Pruebas de la API (extensión "REST Client" de VS Code: clic en "Send Request")
+### Mismas rutas que la API de referencia: /auth, /medicos, /turnos, /control, /paises, /horarios
+
+### Estado de la API
+GET http://localhost:3001/
+
+### Ver médicos (público)
+GET http://localhost:3001/medicos
+
+### Países (público)
+GET http://localhost:3001/paises
+
+### Login como administrador
+# @name login
+POST http://localhost:3001/auth/login
+Content-Type: application/json
+
+{ "usuario": "admin", "contraseña": "admin123" }
+
+### Login médico
+POST http://localhost:3001/medicos/login
+Content-Type: application/json
+
+{ "usuario": "med001", "contraseña": "med123" }
+
+### Registro de paciente
+POST http://localhost:3001/auth/registro-paciente
+Content-Type: application/json
+
+{
+  "dni": "66666666", "apellido": "Martinez", "nombre": "Francisco", "sexo": "M",
+  "fecha_nacimiento": "2000-01-01", "telefono": "3811234567", "email": "francisco@email.com",
+  "usuario": "francisco", "contraseña": "123456", "direccion": "Calle 123",
+  "ciudad": "San Miguel de Tucumán", "id_pais": 1, "obra_social": "Sin obra social", "numero_afiliado": ""
+}
+
+### Login del paciente nuevo
+# @name loginPaciente
+POST http://localhost:3001/auth/login
+Content-Type: application/json
+
+{ "usuario": "francisco", "contraseña": "123456" }
+
+### Horarios libres del Dr. Carlos (id 3) para una fecha
+GET http://localhost:3001/horarios/disponibles?id_medico=3&fecha=2026-12-01
+Authorization: Bearer {{loginPaciente.response.body.token}}
+
+### Solicitar turno
+POST http://localhost:3001/turnos
+Authorization: Bearer {{loginPaciente.response.body.token}}
+Content-Type: application/json
+
+{ "id_medico": 3, "id_especialidad": 1, "fecha": "2026-12-01", "hora": "10:00", "motivo": "Dolor de cabeza", "prioridad_comunidad": false }
+
+### Mis turnos (paciente)
+GET http://localhost:3001/turnos
+Authorization: Bearer {{loginPaciente.response.body.token}}
+
+### Todos los turnos (admin)
+GET http://localhost:3001/turnos
+Authorization: Bearer {{login.response.body.token}}
+
+### Turnos del médico 3 (admin)
+GET http://localhost:3001/medicos/3/turnos
+Authorization: Bearer {{login.response.body.token}}

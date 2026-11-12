@@ -1,0 +1,31 @@
+# Blueprint de Render: crea la base PostgreSQL y el servicio de la API.
+# En Render: New > Blueprint > elegí este repositorio de GitHub.
+databases:
+  - name: turnero-db
+    plan: free
+    databaseName: hospital_db
+    user: turnero
+
+services:
+  - type: web
+    name: turnero-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: turnero-db
+          property: connectionString
+      - key: DB_SSL
+        value: "false"          # conexión interna de Render: no necesita SSL
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES
+        value: 8h
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: NODE_VERSION
+        value: "20"
